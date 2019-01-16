@@ -9,9 +9,20 @@
 <body> 
 <ul>
     <% for(each in urls) { %>
-      <form method="POST" action=<%= `/urls/${each}/delete`%>>
-      <li><%= each %><button type='submit' value='delete'>Delete</button></li>
+      
+      <li>
+        <%= `${each}` %> :
+        <a href=<%= `${urls[each]}` %>> <%= `${urls[each]}` %></a>
+
+        <form method="GET" action=<%= `/urls/${each}/edit`%>>
+        <button type="submit" name='edit'>Edit</button>
+        </form>
+        <form method="POST" action=<%= `/urls/${each}/delete`%>>
+        <button type='submit' name='delete'>Delete</button>
       </form>
+
+      </li>
+      
   <% }; %>
   
 </ul>

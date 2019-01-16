@@ -1,7 +1,7 @@
-var express = require("express");
+const express = require("express");
 const bodyParser = require("body-parser");
-var app = express();
-var PORT = 8080;
+const app = express();
+const PORT = 8080;
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
@@ -17,7 +17,7 @@ function generateRandomString() {
   return str;
 }
 
-var urlDatabase = {
+const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
@@ -34,7 +34,7 @@ app.get("/urls/new", (req, res) => {
   });
   
 app.get("/urls/:id", (req, res) => {
-    var paramId = req.params.id;
+    let paramId = req.params.id;
     let templateVars = { shortURL: paramId,longURL: urlDatabase[paramId] };
     res.render("urls_show", templateVars);
   });

@@ -6,11 +6,15 @@
 <header>
     <% include ./_partials/_header %>
 </header>
-<body>
+<body> 
 <ul>
     <% for(each in urls) { %>
+      <form method="POST" action=<%= `/urls/${each}/delete`%>>
       <li><%= each %></li>
+      <button type='submit' value='delete'>Delete</button>
+      </form>
   <% }; %>
+  
 </ul>
 </body>
 </html>

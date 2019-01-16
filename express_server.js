@@ -9,10 +9,11 @@ app.set("view engine", "ejs");
 function generateRandomString() {
   const letters = ["a", "b", "c", "e", "f", "g"];
   let str = ""
-  let count = 0;
   letters.forEach((each, i) => {
-      str += letters[Math.floor(Math.random() * 6)]
-      str += Math.floor(Math.random() * 6)
+    i%2 === 0 ? 
+      str += letters[Math.floor(Math.random() * 6)] :
+    i%2 !== 0 ?
+      str += Math.floor(Math.random() * 6) : null
   })
   return str;
 }
@@ -50,6 +51,7 @@ app.post("/urls", (req, res) => {
     let shortKey = generateRandomString();
     let addLongURL = req.body.longURL;
     urlDatabase[shortKey] = addLongURL
+    console.log(urlDatabase)
     res.send("Ok");         // Respond with 'Ok' (we will replace this)
   });
 

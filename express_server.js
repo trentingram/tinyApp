@@ -1,10 +1,12 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+var morgan = require('morgan')
 const app = express();
 const PORT = 8080;
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
+app.use(morgan('combined'))
 
 function generateRandomString() {
   const letters = ["a", "b", "c", "e", "f", "g"];
@@ -51,7 +53,12 @@ app.get(
     res,
   ) => {
     let paramId = req.params.id;
-    let templateVars = { shortURL: paramId,longURL: urlDatabase[paramId] };
+
+    let templateVars = { 
+      shortURL: paramId,
+      longURL: urlDatabase[paramId] 
+    };
+
     res.render("urls_show", templateVars);
   }
 );
@@ -75,8 +82,9 @@ app.get(
     req, 
     res,
   ) => {
-
-    res.send("Edit OK");
+    let idKey = req.params.id;
+    console.log(idKey)
+    res.redirect(`/urls/${idKey}`);
   }
 );
 
@@ -95,6 +103,23 @@ app.post(
 );
 
 app.post(
+  "/urls/:id/update", 
+  (
+    req, 
+    res,
+  ) => {
+    let idKey = req.params.id
+    let newURL = req.body.newURL
+    // console.log(req.body)
+    // console.log(`idKey: ${idKey} newURL: ${newURL} base: ${urlDatabase[idKey]}`)
+    urlDatabase[idKey] = newURL;
+    // update data object with url submited
+    // redirect back to main urls page which should show new url
+    res.redirect("/urls");
+  }
+);
+
+app.post(
   "/urls/:id/delete", 
   (
     req, 
@@ -107,7 +132,6 @@ app.post(
     res.redirect("/urls");
   }
 );
-
 
 
 app.listen(

@@ -9,12 +9,12 @@ app.set("view engine", "ejs");
 function generateRandomString() {
   const letters = ["a", "b", "c", "e", "f", "g"];
   let str = ""
-  letters.forEach((each, i) => {
+  for (var i in letters){
     i%2 === 0 ? 
       str += letters[Math.floor(Math.random() * 6)] :
     i%2 !== 0 ?
       str += Math.floor(Math.random() * 6) : null
-  })
+  }
   return str;
 }
 

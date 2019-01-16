@@ -10,8 +10,7 @@
 <ul>
     <% for(each in urls) { %>
       <form method="POST" action=<%= `/urls/${each}/delete`%>>
-      <li><%= each %></li>
-      <button type='submit' value='delete'>Delete</button>
+      <li><%= each %><button type='submit' value='delete'>Delete</button></li>
       </form>
   <% }; %>
   

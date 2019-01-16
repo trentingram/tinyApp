@@ -23,38 +23,85 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-
-
-app.get("/urls", (req, res) => {
+app.get(
+  "/urls", 
+  (
+    req, 
+    res,
+  ) => {
     let templateVars = { urls: urlDatabase };
     res.render("urls_index", templateVars);
-  });
+  }
+);
 
-app.get("/urls/new", (req, res) => {
+app.get(
+  "/urls/new", 
+  (
+    req, 
+    res,
+  ) => {
     res.render("urls_new");
-  });
+  }
+);
   
-app.get("/urls/:id", (req, res) => {
+app.get(
+  "/urls/:id", 
+  (
+    req, 
+    res,
+  ) => {
     let paramId = req.params.id;
     let templateVars = { shortURL: paramId,longURL: urlDatabase[paramId] };
     res.render("urls_show", templateVars);
-  });
+  }
+);
 
-app.get("/u/:shortURL", (req, res) => {
+app.get(
+  "/u/:shortURL", 
+  (
+    req, 
+    res,
+  ) => {
     let sURL = req.params.shortURL
     let longURL = urlDatabase[sURL]
     console.log(urlDatabase, sURL)
     res.redirect(longURL);
-  });
+  }
+);
 
-app.post("/urls", (req, res) => {
+app.post(
+  "/urls", 
+  (
+    req, 
+    res,
+  ) => {
     let shortKey = generateRandomString();
     let addLongURL = req.body.longURL;
     urlDatabase[shortKey] = addLongURL
     console.log(urlDatabase)
-    res.send("Ok");         // Respond with 'Ok' (we will replace this)
-  });
+    res.send("Ok");
+  }
+);
 
-app.listen(PORT, () => {
+app.post(
+  "/urls/:id/delete", 
+  (
+    req, 
+    res,
+  ) => {
+    let keyId = req.params.id
+    console.log(keyId)
+    delete urlDatabase[keyId]
+    console.log(urlDatabase)
+    res.redirect("/urls");
+  }
+);
+
+
+
+app.listen(
+  PORT, 
+  () => {
   console.log(`Example app listening on port ${PORT}!`);
-});
+  }
+);

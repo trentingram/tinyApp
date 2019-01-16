@@ -69,6 +69,17 @@ app.get(
   }
 );
 
+app.get(
+  "/urls/:id/edit", 
+  (
+    req, 
+    res,
+  ) => {
+
+    res.send("Edit OK");
+  }
+);
+
 app.post(
   "/urls", 
   (

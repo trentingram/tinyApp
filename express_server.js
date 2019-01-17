@@ -27,16 +27,19 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-// app.route('/book')
-//   .get(function (req, res) {
-//     res.send('Get a random book')
-//   })
-//   .post(function (req, res) {
-//     res.send('Add a book')
-//   })
-//   .put(function (req, res) {
-//     res.send('Update the book')
-//   })
+const users = { 
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+}
+
 
 app.route("/register")
 .get((req, 
@@ -50,10 +53,18 @@ app.route("/register")
 .post((req, 
        res,
      ) => {
-     let templateVars = { 
-      username: req.cookies["username"]
-     };
-     res.send("ok");
+      let newId = generateRandomString()
+      let newEmail = req.body.email;
+      let newPassword = req.body.password;
+      users[newId] = {
+        id: newId,
+        email: newEmail,
+        password: newPassword
+      }; 
+      res.cookie('user_id', newId)
+      // set cookie and redirect
+      console.log(users)
+     res.redirect("/urls");
   })
 
 

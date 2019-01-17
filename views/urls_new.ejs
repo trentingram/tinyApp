@@ -3,10 +3,12 @@
   <head></head>
   <body style="font-size:20px; padding:50px;">
     <% include ./_partials/_header %>
-    <form action="/urls" method="POST" style="margin:150px;">
-      <label for="longURL">Enter a URL:</label>
-      <input id="longURL" type="text" name="longURL" placeholder="http://" style="width: 300px">
-      <input type="submit" value="Submit">
+    <form action="/register" method="POST" >
+      <label for="email">Enter email</label>
+      <input type="email" name="email" require>
+      <label for="password">Enter password</label>
+      <input type="password" name="password" require>
+      <button type="submit" >Register<button>
     </form>
   </body>
 </html>

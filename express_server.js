@@ -27,6 +27,37 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+// app.route('/book')
+//   .get(function (req, res) {
+//     res.send('Get a random book')
+//   })
+//   .post(function (req, res) {
+//     res.send('Add a book')
+//   })
+//   .put(function (req, res) {
+//     res.send('Update the book')
+//   })
+
+app.route("/register")
+.get((req, 
+      res,
+    ) => {
+    let templateVars = { 
+      username: req.cookies["username"]
+    };
+    res.render("urls_new", templateVars);
+  })
+.post((req, 
+       res,
+     ) => {
+     let templateVars = { 
+      username: req.cookies["username"]
+     };
+     res.send("ok");
+  })
+
+
+
 app.get(
   "/urls", 
   (

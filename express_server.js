@@ -52,10 +52,17 @@ app.route("/register")
   })
 .post((req, 
        res,
+       next,
      ) => {
       let newId = generateRandomString()
       let newEmail = req.body.email;
       let newPassword = req.body.password;
+      if(newEmail === 'xyz@xyz.com') {
+        let err = new Error(`Invalid email`)
+        err.statusCode = 400;
+        next(err) 
+      }
+
       users[newId] = {
         id: newId,
         email: newEmail,
@@ -163,6 +170,17 @@ app.post(
     res.redirect("/urls");
   }
 );
+
+/////////
+// default error message handling
+app.use((err, 
+         req, 
+         res, 
+         next,)  => {
+  console.error(err.message);
+  if (!err.statusCode) err.statusCode = 500;
+  res.send(`${err.statusCode}: ${err.message}`);
+});
 
 app.listen(
   PORT, 

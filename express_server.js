@@ -1,13 +1,15 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-var morgan = require('morgan')
+var cookieParser = require('cookie-parser')
+// var morgan = require('morgan')
 const app = express();
 const PORT = 8080;
-
+////////
 app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
-app.use(morgan('combined'))
-
+app.use(cookieParser())
+// app.use(morgan('combined'))
+///////
 function generateRandomString() {
   const letters = ["a", "b", "c", "e", "f", "g"];
   let str = ""
@@ -31,21 +33,14 @@ app.get(
     req, 
     res,
   ) => {
-    let templateVars = { urls: urlDatabase };
+    let templateVars = { 
+      urls: urlDatabase,
+      username: req.cookies["username"]
+    };
     res.render("urls_index", templateVars);
   }
 );
 
-app.get(
-  "/urls/new", 
-  (
-    req, 
-    res,
-  ) => {
-    res.render("urls_new");
-  }
-);
-  
 app.get(
   "/urls/:id", 
   (
@@ -56,23 +51,11 @@ app.get(
 
     let templateVars = { 
       shortURL: paramId,
-      longURL: urlDatabase[paramId] 
+      longURL: urlDatabase[paramId],
+      username: req.cookies["username"]
     };
 
     res.render("urls_show", templateVars);
-  }
-);
-
-app.get(
-  "/u/:shortURL", 
-  (
-    req, 
-    res,
-  ) => {
-    let sURL = req.params.shortURL
-    let longURL = urlDatabase[sURL]
-    console.log(urlDatabase, sURL)
-    res.redirect(longURL);
   }
 );
 
@@ -83,22 +66,21 @@ app.get(
     res,
   ) => {
     let idKey = req.params.id;
-    console.log(idKey)
-    res.redirect(`/urls/${idKey}`);
+    res.redirect(`urls/${idKey}`);
   }
 );
+  
 
 app.post(
-  "/urls", 
+  "/login", 
   (
     req, 
     res,
   ) => {
-    let shortKey = generateRandomString();
-    let addLongURL = req.body.longURL;
-    urlDatabase[shortKey] = addLongURL
-    console.log(urlDatabase)
-    res.send("Ok");
+  let usernameCookie = req.body.username 
+  res.cookie('username', usernameCookie)
+  console.log(req.headers)
+  res.redirect("urls");
   }
 );
 
@@ -110,12 +92,8 @@ app.post(
   ) => {
     let idKey = req.params.id
     let newURL = req.body.newURL
-    // console.log(req.body)
-    // console.log(`idKey: ${idKey} newURL: ${newURL} base: ${urlDatabase[idKey]}`)
     urlDatabase[idKey] = newURL;
-    // update data object with url submited
-    // redirect back to main urls page which should show new url
-    res.redirect("/urls");
+    res.redirect("urls");
   }
 );
 
@@ -129,10 +107,20 @@ app.post(
     console.log(keyId)
     delete urlDatabase[keyId]
     console.log(urlDatabase)
-    res.redirect("/urls");
+    res.redirect("urls");
   }
 );
 
+app.post(
+  "/logout", 
+  (
+    req, 
+    res,
+  ) => {
+    res.clearCookie('username');
+    res.redirect("urls");
+  }
+);
 
 app.listen(
   PORT, 

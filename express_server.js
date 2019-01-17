@@ -54,8 +54,10 @@ app.route("/register")
 .get((req, 
       res,
     ) => {
+    let user_id = req.cookies.user_id
+    let user = users[user_id]
     let templateVars = { 
-      username: req.cookies["username"]
+      user: user
     };
     res.render("urls_new", templateVars);
   })
@@ -102,9 +104,13 @@ app.get(
     req, 
     res,
   ) => {
+    
+    let user_id = req.cookies.user_id
+    let user = users[user_id]
+    console.log('cookie: ', req.cookies, "user: ", user)
     let templateVars = { 
+      user,
       urls: urlDatabase,
-      username: req.cookies["username"]
     };
     res.render("urls_index", templateVars);
   }
@@ -117,11 +123,13 @@ app.get(
     res,
   ) => {
     let paramId = req.params.id;
+    let user_id = req.cookies.user_id
+    let user = users[user_id]
 
     let templateVars = { 
+      user,
       shortURL: paramId,
-      longURL: urlDatabase[paramId],
-      username: req.cookies["username"]
+      longURL: urlDatabase[paramId]
     };
 
     res.render("urls_show", templateVars);

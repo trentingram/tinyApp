@@ -50,6 +50,28 @@ function readExistingEmails(str) {
 }
 
 /////////// middle-ware handlers
+app.route("/login")
+.get((req, 
+      res,
+     ) => {
+      let user_id = req.cookies.user_id
+      let user = users[user_id]
+      let templateVars = { 
+        user: user
+      };
+    res.render("urls_login", templateVars);
+  })
+  .post((req, 
+    res,
+   ) => {
+    let user_id = req.cookies.user_id
+    let user = users[user_id]
+    let templateVars = { 
+      user: user
+    };
+  res.send("ok");
+})
+
 app.route("/register")
 .get((req, 
       res,
@@ -59,7 +81,8 @@ app.route("/register")
     let templateVars = { 
       user: user
     };
-    res.render("urls_new", templateVars);
+    console.log("cookie: ", req.cookie)
+    res.render("urls_register", templateVars);
   })
 .post((req, 
        res,
@@ -146,20 +169,6 @@ app.get(
     res.redirect(`urls/${idKey}`);
   }
 );
-  
-
-app.post(
-  "/login", 
-  (
-    req, 
-    res,
-  ) => {
-  let usernameCookie = req.body.username 
-  res.cookie('username', usernameCookie)
-  console.log(req.headers)
-  res.redirect("/urls");
-  }
-);
 
 app.post(
   "/urls/:id/update", 
@@ -194,8 +203,8 @@ app.post(
     req, 
     res,
   ) => {
-    res.clearCookie('username');
-    res.redirect("/urls");
+    res.clearCookie('user_id');
+    res.redirect("/login");
   }
 );
 

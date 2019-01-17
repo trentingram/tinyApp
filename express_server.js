@@ -80,7 +80,7 @@ app.post(
   let usernameCookie = req.body.username 
   res.cookie('username', usernameCookie)
   console.log(req.headers)
-  res.redirect("urls");
+  res.redirect("/urls");
   }
 );
 
@@ -93,7 +93,7 @@ app.post(
     let idKey = req.params.id
     let newURL = req.body.newURL
     urlDatabase[idKey] = newURL;
-    res.redirect("urls");
+    res.redirect("/urls");
   }
 );
 
@@ -107,7 +107,7 @@ app.post(
     console.log(keyId)
     delete urlDatabase[keyId]
     console.log(urlDatabase)
-    res.redirect("urls");
+    res.redirect("/urls");
   }
 );
 
@@ -118,7 +118,7 @@ app.post(
     res,
   ) => {
     res.clearCookie('username');
-    res.redirect("urls");
+    res.redirect("/urls");
   }
 );
 

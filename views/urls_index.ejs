@@ -11,12 +11,11 @@
     <% for(each in urls) { %>
       
       <li>
+        
         <%= `${each}` %> :
         <a href=<%= `${urls[each]}` %>> <%= `${urls[each]}` %></a>
-
-        <form method='GET' action=<%= `/urls/${each}/edit`%>>
-        <button type='submit' name='edit'>Edit</button>
-        </form>
+        <a href=<%= `/urls/${each}/` %>>Edit</a>
+      
         <form method='POST' action=<%= `/urls/${each}/delete`%>>
         <button type='submit' name='delete'>Delete</button>
       </form>

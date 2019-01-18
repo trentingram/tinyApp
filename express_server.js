@@ -73,11 +73,13 @@ app.route("/login")
           let userEmail = req.body.email;
           let inputPassword = req.body.password;
           const {flag, userId, userPassword} = readExistingEmails(userEmail);
+          // check if email is on user object
           if(flag === false) {
             let err = 'User cannot be found.'
             res.status(400)
             res.send(err)
           } else {
+          // using email, verify inputted password matches password in user object
             if(flag === true && (inputPassword !== userPassword)) {
               let err = 'Password does not match.'
               res.status(403)
@@ -114,14 +116,14 @@ app.route("/register")
         res.status(400);
         res.send(err)
       } else {
+      // check if email already exists
         if(flag) {
           let err = 'Email already exists.'
           res.status(400)
           res.send(err) 
         }
       }
-        // check if email already exists
- 
+      // add new user w/ id, email, and password to user database
           users[newId] = {
             id: newId,
             email: newEmail,
@@ -132,8 +134,25 @@ app.route("/register")
           res.redirect("/urls");
 
         } 
-      // add new user w/ id, email, and password to user database
+) 
+
+app.route("/new")
+.get((req, 
+      res,
+    ) => {
+      let user_id = req.cookies.user_id
+      let user = users[user_id]
+      let templateVars = { 
+        user,
+      };
+    console.log('tempVars: ', templateVars, 'user: ', user)
+
+    user === undefined ? res.redirect("/login") : 
+
+    res.render("urls_new", templateVars);
+  }
 )
+
 
 app.get(
   "/urls", 

@@ -44,13 +44,15 @@ function generateRandomString() {
 function readExistingEmails(str) {
   let flag = false;
   let userPassword;
+  let userId;
   for (user in users) {
     if(str === users[user].email) {
       flag = true;
       userPassword = users[user].password;
+      userId = users[user].id
     }
   }
-  return {flag, userPassword}
+  return {flag, userId, userPassword}
 }
 
 /////////// middle-ware handlers
@@ -67,26 +69,26 @@ app.route("/login")
   })
   .post((req, 
          res,
-         next,
         ) => {
           let userEmail = req.body.email;
           let inputPassword = req.body.password;
-          const {flag, userPassword} = readExistingEmails(userEmail);
-          console.log(users)
+          const {flag, userId, userPassword} = readExistingEmails(userEmail);
           if(flag === false) {
-            let err = new Error('User cannot be found.')
-            err.statusCode = 403;
-            next(err) 
+            let err = 'User cannot be found.'
+            res.status(400)
+            res.send(err)
           } else {
-          if(flag === true && (inputPassword !== userPassword)) {
-              let err = new Error('Password does not match.')
-              err.statusCode = 403;
-              next(err)          
-          } else {
-            res.redirect("/")
-          } 
-        }      
-})
+            if(flag === true && (inputPassword !== userPassword)) {
+              let err = 'Password does not match.'
+              res.status(403)
+              res.send(err)     
+           } 
+          }
+          
+          res.cookie('user_id', userId)
+          res.redirect("/urls")
+        }     
+)
 
 app.route("/register")
 .get((req, 
@@ -101,36 +103,37 @@ app.route("/register")
   })
 .post((req, 
        res,
-       next,
      ) => {
       let newId = generateRandomString();
       let newEmail = req.body.email;
       let newPassword = req.body.password;
-      let emailExists = readExistingEmails(newEmail);
-      // *** bug: sync code is responding before error is fired
+      const {flag} = readExistingEmails(newEmail);
       // check if email or password are undefined
       if(newEmail == '' || newPassword == '') {
-        let err = new Error('Email or password are invalid.')
-        err.statusCode = 400;
-        next(err) 
+        let err = 'Email or password are invalid.'
+        res.status(400);
+        res.send(err)
       } else {
-        // check if email already exists
-        if(emailExists) {
-          let err = new Error('Email already exists.')
-          err.statusCode = 400;
-          next(err) 
+        if(flag) {
+          let err = 'Email already exists.'
+          res.status(400)
+          res.send(err) 
         }
-      } 
-        users[newId] = {
-          id: newId,
-          email: newEmail,
-          password: newPassword
-        }; 
-        // set user id cookie
-        res.cookie('user_id', newId)
-        res.redirect("/urls");
+      }
+        // check if email already exists
+ 
+          users[newId] = {
+            id: newId,
+            email: newEmail,
+            password: newPassword
+          }; 
+          // set user id cookie
+          res.cookie('user_id', newId)
+          res.redirect("/urls");
+
+        } 
       // add new user w/ id, email, and password to user database
-  })
+)
 
 app.get(
   "/urls", 
@@ -216,20 +219,6 @@ app.post(
   }
 );
 
-/////////
-// default error handler
-app.use((err, 
-         req, 
-         res, 
-         next,)  => {
-  console.error(err.message);
-  !err.statusCode ? err.statusCode = 500 : null;
-  err.message === 'Invalid email.' ? res.send(`${err.statusCode}: ${err.message}`): null;
-  err.message === 'Email already exists.' ? res.send(`${err.statusCode}: ${err.message}`): null;
-  err.message === 'User cannot be found.' ? res.send(`${err.statusCode}: ${err.message}`): null;
-  err.message === 'Email does not match.' ? res.send(`${err.statusCode}: ${err.message}`): null;
-
-});
 
 app.listen(
   PORT, 

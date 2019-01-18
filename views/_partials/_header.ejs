@@ -1,24 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<% if(!username) { %>
-<header></header>
-<body>
-    <form method="POST" action="/login">
-    <input type="text" name="username" placeholder="username" required></input>
-    <button type="submit" >Sign In</button>
-    </form>
-    
-<body>
-    <% } else { %>
+<% if(!user) { %>
     <header></header>
     <body>
-        <form method="POST" action="/logout">
-        <p> <%= username%>:<button type="submit" >Log Out</button> </p> 
-        </form>
-        
+        <p>Already have an account? <a href="/login">Login</a><p>
+        <p>Need to Register?  :<a href="/register">Register</a><p>       
     <body>
-    <% }  %>
+        <% } else { %>
+        <header></header>
+        <body>
+            <form method="POST" action="/logout">
+            <p> <%= user.id %>:<button type="submit" >Log Out</button> </p> 
+            </form>
+            
+        <body>
+        <% }  %>
+<body>
 
+    
+   
+<body>
 </html>
 

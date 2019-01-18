@@ -43,10 +43,14 @@ function generateRandomString() {
 
 function readExistingEmails(str) {
   let flag = false;
+  let userPassword;
   for (user in users) {
-    str === users[user].email ? flag = true : null;
+    if(str === users[user].email) {
+      flag = true;
+      userPassword = users[user].password;
+    }
   }
-  return flag
+  return {flag, userPassword}
 }
 
 /////////// middle-ware handlers
@@ -62,14 +66,26 @@ app.route("/login")
     res.render("urls_login", templateVars);
   })
   .post((req, 
-    res,
-   ) => {
-    let user_id = req.cookies.user_id
-    let user = users[user_id]
-    let templateVars = { 
-      user: user
-    };
-  res.send("ok");
+         res,
+         next,
+        ) => {
+          let userEmail = req.body.email;
+          let inputPassword = req.body.password;
+          const {flag, userPassword} = readExistingEmails(userEmail);
+          console.log(users)
+          if(flag === false) {
+            let err = new Error('User cannot be found.')
+            err.statusCode = 403;
+            next(err) 
+          } else {
+          if(flag === true && (inputPassword !== userPassword)) {
+              let err = new Error('Password does not match.')
+              err.statusCode = 403;
+              next(err)          
+          } else {
+            res.redirect("/")
+          } 
+        }      
 })
 
 app.route("/register")
@@ -81,7 +97,6 @@ app.route("/register")
     let templateVars = { 
       user: user
     };
-    console.log("cookie: ", req.cookie)
     res.render("urls_register", templateVars);
   })
 .post((req, 
@@ -93,32 +108,28 @@ app.route("/register")
       let newPassword = req.body.password;
       let emailExists = readExistingEmails(newEmail);
       // *** bug: sync code is responding before error is fired
-      console.log(newEmail, newPassword)
       // check if email or password are undefined
       if(newEmail == '' || newPassword == '') {
         let err = new Error('Email or password are invalid.')
         err.statusCode = 400;
         next(err) 
+      } else {
+        // check if email already exists
+        if(emailExists) {
+          let err = new Error('Email already exists.')
+          err.statusCode = 400;
+          next(err) 
+        }
       } 
-      // check if email already exists
-      if(emailExists) {
-        let err = new Error('Email already exists.')
-        err.statusCode = 400;
-        next(err) 
-      }
-      
+        users[newId] = {
+          id: newId,
+          email: newEmail,
+          password: newPassword
+        }; 
+        // set user id cookie
+        res.cookie('user_id', newId)
+        res.redirect("/urls");
       // add new user w/ id, email, and password to user database
-      users[newId] = {
-        id: newId,
-        email: newEmail,
-        password: newPassword
-      }; 
-      // set user id cookie
-      res.cookie('user_id', newId)
-      // set cookie and redirect
-      console.log(users)
-     res.redirect("/urls");
-
   })
 
 app.get(
@@ -130,7 +141,6 @@ app.get(
     
     let user_id = req.cookies.user_id
     let user = users[user_id]
-    console.log('cookie: ', req.cookies, "user: ", user)
     let templateVars = { 
       user,
       urls: urlDatabase,
@@ -190,9 +200,7 @@ app.post(
     res,
   ) => {
     let keyId = req.params.id
-    console.log(keyId)
     delete urlDatabase[keyId]
-    console.log(urlDatabase)
     res.redirect("/urls");
   }
 );
@@ -218,12 +226,14 @@ app.use((err,
   !err.statusCode ? err.statusCode = 500 : null;
   err.message === 'Invalid email.' ? res.send(`${err.statusCode}: ${err.message}`): null;
   err.message === 'Email already exists.' ? res.send(`${err.statusCode}: ${err.message}`): null;
+  err.message === 'User cannot be found.' ? res.send(`${err.statusCode}: ${err.message}`): null;
+  err.message === 'Email does not match.' ? res.send(`${err.statusCode}: ${err.message}`): null;
 
 });
 
 app.listen(
   PORT, 
   () => {
-  console.log(`Example app listening on port ${PORT}!`);
+  console.log(`Running on ${PORT}!`);
   }
 );

@@ -2,13 +2,13 @@
 <html lang="en">
 <% if(!user) { %>
     <header></header>
-    <body>
+    <body style="font-size:20px; padding:50px;">
         <p>Already have an account? <a href="/login">Login</a><p>
         <p>Need to Register?  :<a href="/register">Register</a><p>       
     <body>
         <% } else { %>
         <header></header>
-        <body>
+        <body style="font-size:20px; padding:50px;">
             <form method="POST" action="/logout">
             <p> <%= user.id %>:<button type="submit" >Log Out</button> </p> 
             </form>

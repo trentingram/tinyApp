@@ -1,17 +1,14 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-var cookieParser = require('cookie-parser');
 var cookieSession = require('cookie-session')
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
-// var morgan = require('morgan')
+
 const app = express();
 const PORT = 8080;
 ////////
 app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
-app.use(cookieParser())
-// app.use(morgan('combined'))
 
 app.use(cookieSession({
   name: 'session',
@@ -23,32 +20,32 @@ app.use(cookieSession({
 
 /////// Databases
 const urlDatabase = {
-  "b2xVn2": {
-    userId: "user2RandomID",
-    url: "http://www.lighthouselabs.ca"
-  },
-  "9sm5xK": {
-    userId: "userRandomID",
-    url: "http://www.google.com"
-  } 
+  // "b2xVn2": {
+  //   userId: "user2RandomID",
+  //   url: "http://www.lighthouselabs.ca"
+  // },
+  // "9sm5xK": {
+  //   userId: "userRandomID",
+  //   url: "http://www.google.com"
+  // } 
 };
 
 const users = { 
-  "userRandomID": {
-    id: "userRandomID", 
-    email: "test@test.com", 
-    password: "test"
-  },
-  "user3RandomID": {
-    id: "user3RandomID", 
-    email: "user@example.com", 
-    password: "purple-monkey-dinosaur"
-  },
- "user2RandomID": {
-    id: "user2RandomID", 
-    email: "user2@example.com", 
-    password: "dishwasher-funk"
-  }
+//   "userRandomID": {
+//     id: "userRandomID", 
+//     email: "test@test.com", 
+//     password: "test"
+//   },
+//   "user3RandomID": {
+//     id: "user3RandomID", 
+//     email: "user@example.com", 
+//     password: "purple-monkey-dinosaur"
+//   },
+//  "user2RandomID": {
+//     id: "user2RandomID", 
+//     email: "user2@example.com", 
+//     password: "dishwasher-funk"
+//   }
 }
 ///////////// some helper functions
 function generateRandomString() {
@@ -95,7 +92,7 @@ app.route("/login")
 .get((req, 
       res,
      ) => {
-      let user_id = req.cookies.user_id
+      let user_id = req.session.user_id
       let user = users[user_id]
       let templateVars = { 
         user: user
@@ -120,7 +117,7 @@ app.route("/login")
               res.status(403)
               res.send(err)     
            }  else {
-            res.cookie('user_id', userId)
+            req.session.user_id = userId;
             res.redirect("/urls")
           }
           
@@ -131,7 +128,7 @@ app.route("/register")
 .get((req, 
       res,
     ) => {
-    let user_id = req.cookies.user_id
+    let user_id = req.session.user_id
     let user = users[user_id]
     let templateVars = { 
       user: user
@@ -167,15 +164,8 @@ app.route("/register")
             email: newEmail,
             password: hashedPassword
           }; 
-
-      // add new user to urlsDatabase
-          urlDatabase[newId] = {
-            id: newId,
-            url: "iNeedAURL@url.com"
-          }
-          console.log(users)
           // set user id cookie
-          res.cookie('user_id', newId)
+          req.session.user_id = newId;
           res.redirect("/urls");
 
         } 
@@ -204,7 +194,7 @@ app.route("/urls")
     res,
   ) => {
     
-    let user_id = req.cookies.user_id;
+    let user_id = req.session.user_id;
     let user = users[user_id];
     let url = urlDatabase;
     let templateVars = { 
@@ -219,7 +209,7 @@ app.route("/urls")
     req, 
     res,
   ) => {
-    let user_id = req.cookies.user_id;
+    let user_id = req.session.user_id;
     let shortKey = generateRandomString();
     let addLongURL = req.body.longURL;
     urlDatabase[shortKey] = {
@@ -232,7 +222,7 @@ app.route("/urls")
  )
 
 app.get("/urls/new", (req, res) => {
-  let user_id = req.cookies.user_id
+  let user_id = req.session.user_id
   let user = users[user_id]
   let templateVars = { 
     user,
@@ -253,7 +243,7 @@ app.get(
     req, 
     res,
   ) => {
-    let user_id = req.cookies.user_id
+    let user_id = req.session.user_id
     let {unique, short, long} = findIdWithShort(user_id)
     let user = users[user_id]
     let templateVars = { 
@@ -295,7 +285,7 @@ app.post(
     req, 
     res,
   ) => {
-    let user_id = req.cookies.user_id
+    let user_id = req.session.user_id
     let newURL = req.body.newURL;
     let {unique, short, long} = findIdWithShort(user_id)
     urlDatabase[short].url = newURL;
@@ -310,7 +300,7 @@ app.post(
     req, 
     res,
   ) => {
-    let user_id = req.cookies.user_id;
+    let user_id = req.session.user_id;
     let {unique, short} = findIdWithShort(user_id)
     let user = users[user_id];
     let url = urlDatabase;
@@ -335,10 +325,14 @@ app.post(
     req, 
     res,
   ) => {
-    res.clearCookie('user_id');
+    req.session.user_id = null;
     res.redirect("/login");
   }
 );
+
+app.get('/cookies', (req, res) => {
+  res.json(req.session)
+})
 
 
 app.listen(

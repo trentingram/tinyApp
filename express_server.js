@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 var cookieParser = require('cookie-parser');
+var cookieSession = require('cookie-session')
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 // var morgan = require('morgan')
@@ -11,6 +12,14 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
 app.use(cookieParser())
 // app.use(morgan('combined'))
+
+app.use(cookieSession({
+  name: 'session',
+  keys: ['here are my keys'],
+ 
+  // Cookie Options
+  maxAge: 24 * 60 * 60 * 1000 // 24 hours
+}))
 
 /////// Databases
 const urlDatabase = {

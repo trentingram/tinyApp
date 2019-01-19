@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,21 +7,20 @@
 <header>
     <% include ./_partials/_header %>
 </header>
-<body style="font-size:20px; padding:50px;"> 
+<body> 
 <ul>
-    <% for(each in urls) { %>
-      
+    <% for(each in url) { %>
+    <% if(url[each].userId === user_id) { %>  
       <li>
         
         <%= `${each}` %> :
-        <a href=<%= `${urls[each]}` %>> <%= `${urls[each]}` %></a>
+        <a href=<%= `${url[each].url}` %>> <%= `${url[each].url}` %></a>
         <a href=<%= `/urls/${each}/` %>>Edit</a>
         <form method='POST' action=<%= `/urls/${each}/delete`%>>
         <button type='submit' name='delete'>Delete</button>
       </form>
-
       </li>
-      
+    <% }; %>  
   <% }; %>
   
 </ul>

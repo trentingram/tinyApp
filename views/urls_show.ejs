@@ -8,10 +8,9 @@
 </header>
 <body>
     
-    <p>Short URL: <%= shortURL %><p>
-
-    <form method="POST" action=<%= `/urls/${shortURL}/update`%>>
-    <input type="text" name="newURL" value= <%= longURL  %> placeholder="http://"></input>
+    <p>Short URL: <%= short %><p>
+    <form method="POST" action=<%= `/urls/${short}/update`%>>
+    <input type="text" name="newURL"  placeholder="http://"></input>
     <button type="submit" >Update</button>
     </form>
 

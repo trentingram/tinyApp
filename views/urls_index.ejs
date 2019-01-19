@@ -14,7 +14,7 @@
       <li>
         
         <%= `${each}` %> :
-        <a href=<%= `${url[each].url}` %>> <%= `${url[each].url}` %></a>
+        <a href=<%= `/u/${each}/` %>> <%= url[each].url %></a>
         <a href=<%= `/urls/${each}/` %>>Edit</a>
         <form method='POST' action=<%= `/urls/${each}/delete`%>>
         <button type='submit' name='delete'>Delete</button>
@@ -22,7 +22,7 @@
       </li>
     <% }; %>  
   <% }; %>
-  
+  <a href="/urls/new">Add a new URL</a>
 </ul>
 </body>
 </html>

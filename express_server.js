@@ -81,7 +81,7 @@ function findIdWithShort(str) {
     if(urlDatabase[each].userId === str) {
       unique = urlDatabase[each].userId
       short = each;
-      long = unique = urlDatabase[each].userId;
+      long = urlDatabase[each].url;
     }
   }
   return {unique, short, long}
@@ -251,6 +251,7 @@ app.get(
       short,
       long,
     };
+    
     // check to make sure cookie id matches user_id
     if(user_id !== unique) {
       res.send("you cannot edit.");

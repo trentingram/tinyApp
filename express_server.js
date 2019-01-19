@@ -12,13 +12,24 @@ app.use(cookieParser())
 
 /////// Databases
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": {
+    userId: "user2RandomID",
+    url: "http://www.lighthouselabs.ca"
+  },
+  "9sm5xK": {
+    userId: "userRandomID",
+    url: "http://www.google.com"
+  } 
 };
 
 const users = { 
   "userRandomID": {
     id: "userRandomID", 
+    email: "test@test.com", 
+    password: "test"
+  },
+  "user3RandomID": {
+    id: "user3RandomID", 
     email: "user@example.com", 
     password: "purple-monkey-dinosaur"
   },
@@ -54,6 +65,19 @@ function readExistingEmails(str) {
   }
   return {flag, userId, userPassword}
 }
+function findIdWithShort(str) {
+  var uniqueId;
+  var short;
+  var long;
+  for(each in urlDatabase) {
+    if(urlDatabase[each].userId === str) {
+      unique = urlDatabase[each].userId
+      short = each;
+      long = unique = urlDatabase[each].userId;
+    }
+  }
+  return {unique, short, long}
+  }
 
 /////////// middle-ware handlers
 app.route("/login")
@@ -78,17 +102,15 @@ app.route("/login")
             let err = 'User cannot be found.'
             res.status(400)
             res.send(err)
-          } else {
-          // using email, verify inputted password matches password in user object
-            if(flag === true && (inputPassword !== userPassword)) {
+          } else if(flag === true && (inputPassword !== userPassword)) {
               let err = 'Password does not match.'
               res.status(403)
               res.send(err)     
-           } 
+           }  else {
+            res.cookie('user_id', userId)
+            res.redirect("/urls")
           }
           
-          res.cookie('user_id', userId)
-          res.redirect("/urls")
         }     
 )
 
@@ -101,6 +123,7 @@ app.route("/register")
     let templateVars = { 
       user: user
     };
+    
     res.render("urls_register", templateVars);
   })
 .post((req, 
@@ -129,6 +152,12 @@ app.route("/register")
             email: newEmail,
             password: newPassword
           }; 
+
+      // add new user to urlsDatabase
+          urlDatabase[newId] = {
+            id: newId,
+            url: "iNeedAURL@url.com"
+          }
           // set user id cookie
           res.cookie('user_id', newId)
           res.redirect("/urls");
@@ -136,23 +165,22 @@ app.route("/register")
         } 
 ) 
 
-app.route("/new")
-.get((req, 
-      res,
-    ) => {
-      let user_id = req.cookies.user_id
-      let user = users[user_id]
-      let templateVars = { 
-        user,
-      };
-    console.log('tempVars: ', templateVars, 'user: ', user)
-
-    user === undefined ? res.redirect("/login") : 
-
-    res.render("urls_new", templateVars);
-  }
-)
-
+// app.route("/new")
+// .get((req, 
+//       res,
+//     ) => {
+//       let user_id = req.cookies.user_id
+//       let user = users[user_id]
+//       let templateVars = { 
+//         user
+//       };
+//       res.redirect("/login")
+//     } else {
+//       res.render("urls_new", templateVars);
+//     }
+    
+//   }
+// );
 
 app.get(
   "/urls", 
@@ -161,15 +189,33 @@ app.get(
     res,
   ) => {
     
-    let user_id = req.cookies.user_id
-    let user = users[user_id]
+    let user_id = req.cookies.user_id;
+    let user = users[user_id];
+    let url = urlDatabase;
     let templateVars = { 
+      user_id,
       user,
-      urls: urlDatabase,
-    };
+      url,
+    }
     res.render("urls_index", templateVars);
   }
 );
+
+app.get("/urls/new", (req, res) => {
+  let user_id = req.cookies.user_id
+  let user = users[user_id]
+  let templateVars = { 
+    user,
+    urls: urlDatabase
+  };
+  if(user === undefined) {
+    res.redirect("/login")
+  } else {
+    res.render("urls_new", templateVars)
+  }
+  
+  
+});
 
 app.get(
   "/urls/:id", 
@@ -177,19 +223,30 @@ app.get(
     req, 
     res,
   ) => {
-    let paramId = req.params.id;
     let user_id = req.cookies.user_id
+    let {unique, short, long} = findIdWithShort(user_id)
     let user = users[user_id]
-
     let templateVars = { 
       user,
-      shortURL: paramId,
-      longURL: urlDatabase[paramId]
+      short,
+      long,
     };
-
-    res.render("urls_show", templateVars);
+    // check to make sure cookie id matches user_id
+    if(user_id !== unique) {
+      res.send("you cannot edit.");
+    } else {
+      res.render("urls_show", templateVars);
+    }
+    
   }
 );
+
+app.get("/u/:shortURL", (req, res) => {
+  let sURL = req.params.shortURL
+  let longURL = urlDatabase[sURL]
+  console.log(urlDatabase, sURL)
+  res.redirect(longURL);
+});
 
 app.get(
   "/urls/:id/edit", 
@@ -198,7 +255,7 @@ app.get(
     res,
   ) => {
     let idKey = req.params.id;
-    res.redirect(`urls/${idKey}`);
+    res.redirect(`/urls/${idKey}`);
   }
 );
 
@@ -208,9 +265,11 @@ app.post(
     req, 
     res,
   ) => {
-    let idKey = req.params.id
-    let newURL = req.body.newURL
-    urlDatabase[idKey] = newURL;
+    let user_id = req.cookies.user_id
+    let newURL = req.body.newURL;
+    let {unique, short, long} = findIdWithShort(user_id)
+    urlDatabase[short].url = newURL;
+    console.log('new: ',req.body.newURL, )
     res.redirect("/urls");
   }
 );
@@ -221,9 +280,22 @@ app.post(
     req, 
     res,
   ) => {
-    let keyId = req.params.id
-    delete urlDatabase[keyId]
-    res.redirect("/urls");
+    let user_id = req.cookies.user_id;
+    let {unique, short} = findIdWithShort(user_id)
+    let user = users[user_id];
+    let url = urlDatabase;
+    let templateVars = { 
+      user_id,
+      user,
+      url,
+    }    
+    if(user_id !== unique) {
+      res.send("you cannot delete.");
+      } else {
+      delete urlDatabase[short].url;
+      res.render("urls_index", templateVars);
+      }
+    
   }
 );
 

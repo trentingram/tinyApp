@@ -1,6 +1,8 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-var cookieParser = require('cookie-parser')
+var cookieParser = require('cookie-parser');
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 // var morgan = require('morgan')
 const app = express();
 const PORT = 8080;
@@ -132,6 +134,8 @@ app.route("/register")
       let newId = generateRandomString();
       let newEmail = req.body.email;
       let newPassword = req.body.password;
+      var hashedPassword = bcrypt.hashSync(newPassword, saltRounds);
+
       const {flag} = readExistingEmails(newEmail);
       // check if email or password are undefined
       if(newEmail == '' || newPassword == '') {
@@ -150,7 +154,7 @@ app.route("/register")
           users[newId] = {
             id: newId,
             email: newEmail,
-            password: newPassword
+            password: hashedPassword
           }; 
 
       // add new user to urlsDatabase
@@ -158,6 +162,7 @@ app.route("/register")
             id: newId,
             url: "iNeedAURL@url.com"
           }
+          console.log(users)
           // set user id cookie
           res.cookie('user_id', newId)
           res.redirect("/urls");

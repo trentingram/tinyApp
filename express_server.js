@@ -99,12 +99,14 @@ app.route("/login")
           let userEmail = req.body.email;
           let inputPassword = req.body.password;
           const {flag, userId, userPassword} = readExistingEmails(userEmail);
+          let check = bcrypt.compareSync(inputPassword, userPassword); 
+    
           // check if email is on user object
           if(flag === false) {
             let err = 'User cannot be found.'
             res.status(400)
-            res.send(err)
-          } else if(flag === true && (inputPassword !== userPassword)) {
+            res.send(err) 
+          } else if(flag === true && check === false) {
               let err = 'Password does not match.'
               res.status(403)
               res.send(err)     

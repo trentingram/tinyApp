@@ -182,9 +182,8 @@ app.route("/register")
 //   }
 // );
 
-app.get(
-  "/urls", 
-  (
+app.route("/urls")
+  .get((
     req, 
     res,
   ) => {
@@ -199,7 +198,22 @@ app.get(
     }
     res.render("urls_index", templateVars);
   }
-);
+)
+.post((
+    req, 
+    res,
+  ) => {
+    let user_id = req.cookies.user_id;
+    let shortKey = generateRandomString();
+    let addLongURL = req.body.longURL;
+    urlDatabase[shortKey] = {
+      userId: user_id,
+      url: addLongURL
+    }
+    console.log(urlDatabase)
+    res.redirect("/urls");
+  }
+ )
 
 app.get("/urls/new", (req, res) => {
   let user_id = req.cookies.user_id

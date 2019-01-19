@@ -256,9 +256,9 @@ app.get(
 );
 
 app.get("/u/:shortURL", (req, res) => {
-  let sURL = req.params.shortURL
-  let longURL = urlDatabase[sURL]
-  console.log(urlDatabase, sURL)
+  let short = req.params.shortURL;
+  let longURL = urlDatabase[short].url
+  console.log(urlDatabase, short, longURL)
   res.redirect(longURL);
 });
 

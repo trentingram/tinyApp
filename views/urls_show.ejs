@@ -10,7 +10,7 @@
     
     <p>Short URL: <%= short %><p>
     <form method="POST" action=<%= `/urls/${short}/update`%>>
-    <input type="text" name="newURL"  placeholder="http://"></input>
+    <input type="text" name="newURL"  value=<%= long  %> placeholder="http://"></input>
     <button type="submit" >Update</button>
     </form>
 

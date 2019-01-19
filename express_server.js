@@ -306,7 +306,7 @@ app.post(
     if(user_id !== unique) {
       res.send("you cannot delete.");
       } else {
-      delete urlDatabase[short].url;
+      delete urlDatabase[short];
       res.render("urls_index", templateVars);
       }
     
